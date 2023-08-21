@@ -76,7 +76,7 @@ class Boid {
   
   void render() {
     // Draw a triangle rotated in the direction of velocity
-    float theta = velocity.heading2D() + radians(90);
+    float theta = velocity.heading() + radians(90);
     fill(175);
     stroke(0);
     pushMatrix();
@@ -137,11 +137,14 @@ class Boid {
   // For every nearby boid in the system, calculate the average velocity
   PVector align (ArrayList<Boid> boids) {
     float neighbordist = 50;
+    float viewangle = radians(45);
     PVector sum = new PVector(0,0);
     int count = 0;
     for (Boid other : boids) {
       float d = PVector.dist(position,other.position);
-      if ((d > 0) && (d < neighbordist)) {
+      PVector relativepos = PVector.sub(other.position,position);
+      float a = PVector.angleBetween(relativepos,velocity);
+      if ((d > 0) && (d < neighbordist) && (a < viewangle)) {
         sum.add(other.velocity);
         count++;
       }
@@ -162,11 +165,14 @@ class Boid {
   // For the average position (i.e. center) of all nearby boids, calculate steering vector towards that position
   PVector cohesion (ArrayList<Boid> boids) {
     float neighbordist = 50;
+    float viewangle = radians(45);
     PVector sum = new PVector(0,0);   // Start with empty vector to accumulate all positions
     int count = 0;
     for (Boid other : boids) {
       float d = PVector.dist(position,other.position);
-      if ((d > 0) && (d < neighbordist)) {
+      PVector relativepos = PVector.sub(other.position,position);
+      float a = PVector.angleBetween(relativepos,velocity);
+      if ((d > 0) && (d < neighbordist) && (a < viewangle)) {
         sum.add(other.position); // Add position
         count++;
       }
@@ -179,4 +185,3 @@ class Boid {
     }
   }
 }
-
