@@ -12,9 +12,10 @@ Flock flock;
 
 void setup() {
   size(640,360);
+  int numbirds = 200;
   flock = new Flock();
   // Add an initial set of boids into the system
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < numbirds; i++) {
     Boid b = new Boid(width/2,height/2);
     flock.addBoid(b);
   }
@@ -33,5 +34,3 @@ void draw() {
 void mouseDragged() {
   flock.addBoid(new Boid(mouseX,mouseY));
 }
-
-

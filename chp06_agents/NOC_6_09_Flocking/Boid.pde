@@ -40,11 +40,14 @@ class Boid {
     PVector sep = separate(boids);   // Separation
     PVector ali = align(boids);      // Alignment
     PVector coh = cohesion(boids);   // Cohesion
+    PVector view = view(boids);
     // Arbitrarily weight these forces
     sep.mult(1.5);
     ali.mult(1.0);
     coh.mult(1.0);
+    view.mult(1.0);
     // Add the force vectors to acceleration
+    applyForce(view);
     applyForce(sep);
     applyForce(ali);
     applyForce(coh);
@@ -181,6 +184,45 @@ class Boid {
       sum.div(count);
       return seek(sum);  // Steer towards the position
     } else {
+      return new PVector(0,0);
+    }
+  }
+  
+  PVector view(ArrayList<Boid> boids) {
+    float neighbordist = 30;
+    float viewangle = radians(30);
+    PVector sum = new PVector(0,0);
+    int count = 0;
+    for (Boid other : boids) {
+      float d = PVector.dist(position,other.position);
+      PVector relativepos = PVector.sub(other.position,position);
+      float a = PVector.angleBetween(velocity,relativepos);
+      relativepos.rotate(radians(90));
+      float perpdot = PVector.dot(relativepos,velocity); //sign of perpendicular dot product gives sign of angle between
+      if ((d > 0) && (d < neighbordist) && (a < viewangle)) {
+        PVector correction = new PVector(velocity.x,velocity.y);
+        correction.normalize();
+        if (perpdot > 0) {
+          correction.rotate(radians(90));
+          sum.add(correction);
+        }
+        
+        else if (perpdot < 0) {
+          correction.rotate(radians(-90));
+          sum.add(correction);
+        }
+        
+        count++;
+      }
+    }
+    if (count > 0) {
+      sum.normalize();
+      sum.mult(maxspeed);
+      sum.limit(maxforce);
+      return sum;
+    }
+    
+    else {
       return new PVector(0,0);
     }
   }
